@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import { getHomeRouteForLoggedInUser, getUserData } from './utils/Utils';
 import Home from './pages/Home';
 import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import CitizenRegister from './pages/auth/CitizenRegister';
