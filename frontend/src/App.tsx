@@ -10,6 +10,11 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import CitizenRegister from './pages/auth/CitizenRegister';
 import AuthorityRegister from './pages/auth/AuthorityRegister';
+import RequiredUser from './components/RequiredUser';
+import Issues from './pages/Issues';
+import IssueSubmission from './pages/IssueSubmission';
+import MyIssues from './pages/MyIssues';
+import IssueDetails from './pages/IssueDetails';
 
 const App: React.FC = () => {
   const getHomeRoute = () => {
@@ -26,6 +31,13 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={getHomeRoute()} />
+          <Route element={<RequiredUser allowedRoles={['Citizen']} />}>
+            <Route path="citizen/issues" element={<Issues />} />
+            <Route path="citizen/issues" element={<Issues />} />
+            <Route path="citizen/issue-detail/:id" element={<IssueDetails />} />
+            <Route path="citizen/my-issues" element={<MyIssues />} />
+            <Route path="citizen/issues-submission" element={<IssueSubmission />} />
+          </Route>
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="register-citizen" element={<CitizenRegister />} />

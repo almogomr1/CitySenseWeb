@@ -35,7 +35,7 @@ export const removeCookie = (cookieName: string) => {
 
 export const getHomeRouteForLoggedInUser = (userRole: string): string => {
     if (userRole === 'Admin') return '/admin/dashboard';
-    if (userRole === 'Citizen') return '/citizen/issue-submissions';
+    if (userRole === 'Citizen') return '/citizen/issues';
     if (userRole === 'Authority') return '/authority/dashboard';
     return '/login';
 };
