@@ -11,19 +11,21 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
+    Badge,
 } from 'reactstrap';
+import DataTable from 'react-data-table-component';
 import Select from 'react-select';
-
-interface IUser {
-    id: number;
-    name: string;
-    email: string;
-    role: string;
-    status: string;
-}
+import { useGetUsersQuery } from '../redux/api/userAPI';
+import { IUser } from '../redux/api/types';
+import { ChevronDown } from 'react-feather';
 
 const AdminUser: React.FC = () => {
-    const [users, setUsers] = useState<IUser[]>([]);
+    const paginationRowsPerPageOptions = [15, 30, 50, 100];
+    const { data: users, refetch } = useGetUsersQuery();
+    useEffect(() => {
+        refetch()
+    }, []);
+    console.log(users)
     const [filteredUsers, setFilteredUsers] = useState<IUser[]>([]);
     const [filters, setFilters] = useState({
         role: '',
@@ -33,30 +35,30 @@ const AdminUser: React.FC = () => {
     const [newRole, setNewRole] = useState<string>('');
     const [modalOpen, setModalOpen] = useState<boolean>(false);
 
-    useEffect(() => {
-        // Mock data or fetch from API
-        const mockUsers: IUser[] = [
-            { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Citizen', status: 'Active' },
-            { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Authority', status: 'Suspended' },
-            { id: 3, name: 'Admin User', email: 'admin@example.com', role: 'Admin', status: 'Active' },
-        ];
-        setUsers(mockUsers);
-        setFilteredUsers(mockUsers);
-    }, []);
+    // useEffect(() => {
+    //     // Mock data or fetch from API
+    //     const mockUsers: IUser[] = [
+    //         { id: 1, name: 'John Doe', email: 'john@example.com', role: 'Citizen', status: 'Active' },
+    //         { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'Authority', status: 'Suspended' },
+    //         { id: 3, name: 'Admin User', email: 'admin@example.com', role: 'Admin', status: 'Active' },
+    //     ];
+    //     setUsers(mockUsers);
+    //     setFilteredUsers(mockUsers);
+    // }, []);
 
-    useEffect(() => {
-        let data = users;
+    // useEffect(() => {
+    //     let data = users;
 
-        if (filters.role) {
-            data = data.filter((user) => user.role === filters.role);
-        }
+    //     if (filters.role) {
+    //         data = data.filter((user) => user.role === filters.role);
+    //     }
 
-        if (filters.status) {
-            data = data.filter((user) => user.status === filters.status);
-        }
+    //     if (filters.status) {
+    //         data = data.filter((user) => user.status === filters.status);
+    //     }
 
-        setFilteredUsers(data);
-    }, [filters, users]);
+    //     setFilteredUsers(data);
+    // }, [filters, users]);
 
     const handleFilterChange = (key: string, value: string) => {
         setFilters((prev) => ({ ...prev, [key]: value }));
@@ -68,31 +70,31 @@ const AdminUser: React.FC = () => {
         setModalOpen(true);
     };
 
-    const handleConfirmRoleChange = () => {
-        if (selectedUser) {
-            setUsers((prev) =>
-                prev.map((user) =>
-                    user.id === selectedUser.id ? { ...user, role: newRole } : user
-                )
-            );
-            console.log(`Role updated for ${selectedUser.name} to ${newRole}`);
-        }
-        setModalOpen(false);
-    };
+    // const handleConfirmRoleChange = () => {
+    //     if (selectedUser) {
+    //         setUsers((prev) =>
+    //             prev.map((user) =>
+    //                 user.id === selectedUser.id ? { ...user, role: newRole } : user
+    //             )
+    //         );
+    //         console.log(`Role updated for ${selectedUser.name} to ${newRole}`);
+    //     }
+    //     setModalOpen(false);
+    // };
 
-    const handleSuspendAccount = (id: number) => {
-        setUsers((prev) =>
-            prev.map((user) =>
-                user.id === id ? { ...user, status: 'Suspended' } : user
-            )
-        );
-        console.log(`User ${id} suspended.`);
-    };
+    // const handleSuspendAccount = (id: number) => {
+    //     setUsers((prev) =>
+    //         prev.map((user) =>
+    //             user.id === id ? { ...user, status: 'Suspended' } : user
+    //         )
+    //     );
+    //     console.log(`User ${id} suspended.`);
+    // };
 
-    const handleDeleteAccount = (id: number) => {
-        setUsers((prev) => prev.filter((user) => user.id !== id));
-        console.log(`User ${id} deleted.`);
-    };
+    // const handleDeleteAccount = (id: number) => {
+    //     setUsers((prev) => prev.filter((user) => user.id !== id));
+    //     console.log(`User ${id} deleted.`);
+    // };
 
     const roleOptions = [
         { value: 'Citizen', label: 'Citizen' },
@@ -105,8 +107,50 @@ const AdminUser: React.FC = () => {
         { value: 'Suspended', label: 'Suspended' },
     ];
 
+    const renderRole = (row: IUser) => {
+        const getBadgeColor = (role: string): string => {
+            switch (role) {
+                case 'Admin':
+                    return 'info';
+                case 'Citizen':
+                    return 'success';
+                case 'Authority':
+                    return 'primary';
+                default:
+                    return 'danger';
+            }
+        };
+
+        return (
+            <span className="text-truncate text-capitalize align-middle">
+                <Badge color={getBadgeColor(row.role)} className="px-3 py-2" pill>
+                    {row.role}
+                </Badge>
+            </span>
+        );
+    };
+
+    const columns = () => [
+        {
+            name: 'Fullname',
+            maxwidth: '100px',
+            selector: (row: { fullname: any; }) => `${row.fullname}`,
+            sortable: true
+        },
+        {
+            name: 'Email',
+            maxwidth: '100px',
+            selector: (row: { email: any; }) => `${row.email}`,
+            sortable: true
+        },
+        {
+            name: 'Role',
+            cell: (row: IUser) => renderRole(row),
+            ignoreRowClick: true,
+        },
+    ];
     return (
-        <div className="container">
+        <div className="container main-board">
             <Row className="my-3">
                 <Col>
                     <h3>User Management</h3>
@@ -133,7 +177,18 @@ const AdminUser: React.FC = () => {
             <Row>
                 <Col>
                     <Card>
-                        <CardBody>
+                        <DataTable
+                            title="Users"
+                            data={users as IUser[]}
+                            responsive
+                            className="react-dataTable"
+                            noHeader
+                            pagination
+                            paginationRowsPerPageOptions={paginationRowsPerPageOptions}
+                            columns={columns()}
+                            sortIcon={<ChevronDown />}
+                        />
+                        {/* <CardBody>
                             <Table responsive>
                                 <thead>
                                     <tr>
@@ -164,14 +219,14 @@ const AdminUser: React.FC = () => {
                                                 <Button
                                                     color="warning"
                                                     size="sm"
-                                                    onClick={() => handleSuspendAccount(user.id)}
+                                                    // onClick={() => handleSuspendAccount(user.id)}
                                                 >
                                                     Suspend
                                                 </Button>{' '}
                                                 <Button
                                                     color="danger"
                                                     size="sm"
-                                                    onClick={() => handleDeleteAccount(user.id)}
+                                                    // onClick={() => handleDeleteAccount(user.id)}
                                                 >
                                                     Delete
                                                 </Button>
@@ -180,7 +235,7 @@ const AdminUser: React.FC = () => {
                                     ))}
                                 </tbody>
                             </Table>
-                        </CardBody>
+                        </CardBody> */}
                     </Card>
                 </Col>
             </Row>
@@ -197,12 +252,12 @@ const AdminUser: React.FC = () => {
                     />
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="primary" onClick={handleConfirmRoleChange}>
+                    {/* <Button color="primary" onClick={handleConfirmRoleChange}>
                         Confirm
                     </Button>{' '}
                     <Button color="secondary" onClick={() => setModalOpen(false)}>
                         Cancel
-                    </Button>
+                    </Button> */}
                 </ModalFooter>
             </Modal>
         </div>

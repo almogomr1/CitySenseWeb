@@ -78,6 +78,40 @@ router.get('/personal/me', verifyToken(['Admin', 'Citizen', 'Authority']), async
 
 /**
  * @openapi
+ * /api/users:
+ *   get:
+ *     security:
+ *       - bearerAuth: []
+ *     summary: Returns a list of users
+ *     tags:
+ *       - User
+ *     responses:
+ *       200:
+ *         description: A list of users.
+ *       401:
+ *         description: Unauthorized, missing or invalid token.
+ */
+router.get('/', verifyToken(['Admin', 'Citizen', 'Authority']), async (req, res) => {
+    const roleFilter = req.query.role !== '' && typeof req.query.role !== 'undefined' ? { role: req.query.role } : {};
+    const statusFilter = req.query.status !== '' && typeof req.query.status !== 'undefined' ? { role: req.query.status } : {};
+    const filterParams = {
+        $and: [
+            statusFilter,
+            roleFilter
+        ],
+    };
+    const totalCount = await User.countDocuments({});
+    const users = await User.find(filterParams).select('-password -__v');
+
+    return res.send({
+        totalCount,
+        users,
+        filteredCount: users.length,
+    })
+});
+
+/**
+ * @openapi
  * /api/users/logout:
  *   get:
  *     summary: Log out the current user

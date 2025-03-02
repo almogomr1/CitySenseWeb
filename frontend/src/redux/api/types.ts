@@ -4,13 +4,11 @@ export interface GenericResponse {
 }
 
 export interface IUser {
-    username: string;
-    firstname: string;
-    lastname: string;
+    fullname: string;
     email: string;
     lastLogin: string;
     role: string;
-    avatar?: string;
+    status: string;
     _id: string;
     createdAt: string;
     updatedAtt: string;
