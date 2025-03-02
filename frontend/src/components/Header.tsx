@@ -149,7 +149,7 @@ const Header: React.FC = () => {
                                 </Nav>
                             </>
                         )}
-                        {user && user.role === 'Authority' && (
+                        {user && user.role === 'Admin' && (
                             <>
                                 <Nav className="ms-auto" navbar>
                                     <NavItem className="nav-item-responsive">
