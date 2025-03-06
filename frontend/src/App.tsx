@@ -27,6 +27,7 @@ import AuthorityTeamAssign from './pages/AuthorityTeamAssign';
 import IssueUpdate from './pages/IssueUpdate';
 import AuthorityTeamAssignUpdate from './pages/AuthorityTeamAssignUpdate';
 import AuthorityIssueDetails from './pages/AuthorityIssueDetails';
+import AuthorityAnalytics from './pages/AuthorityAnalytics';
 
 const App: React.FC = () => {
   const getHomeRoute = () => {
@@ -60,6 +61,7 @@ const App: React.FC = () => {
             <Route path="authority/teams" element={<Teams />} />
             <Route path="authority/team-create" element={<TeamCreate />} />
             <Route path="authority/team-update/:id" element={<TeamUpdate />} />
+            <Route path="authority/analytics" element={<AuthorityAnalytics />} />
           </Route>
           <Route element={<RequiredUser allowedRoles={['Admin']} />}>
             <Route path="admin/users" element={<AdminUser />} />

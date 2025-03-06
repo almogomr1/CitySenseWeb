@@ -40,6 +40,7 @@ export interface IssueUpdateRequest {
     photo?: File;
     audio?: File;
     address: string;
+    category: string;
 }
 
 export interface TeamCreateRequest {
@@ -112,7 +113,7 @@ export interface ITeamIssue {
     issueNumber: number;
     upvoteCount: number;
     category: string;
-}
+}   
 
 export interface IComment {
     _id: string;

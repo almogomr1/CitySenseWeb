@@ -91,6 +91,7 @@ const AdminReport: React.FC = () => {
               options={reportTypeOptions}
               onChange={(option) => setReportType(option?.value || null)}
               placeholder="Select Report Type"
+              isClearable={true}
             />
           </FormGroup>
         </Col>

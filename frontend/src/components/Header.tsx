@@ -153,6 +153,11 @@ const Header: React.FC = () => {
                                             Notifications
                                         </NavLink>
                                     </NavItem>
+                                    <NavItem className="nav-item-responsive">
+                                        <NavLink onClick={() => { navigate('/authority/analytics'); mobileToggle(); }}>
+                                            Analytics
+                                        </NavLink>
+                                    </NavItem>
                                     <UncontrolledDropdown nav inNavbar>
                                         <DropdownToggle nav caret>
                                             <img src={userImg} alt="user" className="user-img" />
