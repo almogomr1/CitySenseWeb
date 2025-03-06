@@ -114,7 +114,7 @@ const AuthorityNotifications: React.FC = () => {
     const columns: TableColumn<any>[] = [
         {
             name: "Content",
-            selector: (row) => row.message,
+            selector: row => row.message?.length > 30 ? `${row.message.slice(0, 30)}...` : row.message,
             sortable: true,
         },
         {

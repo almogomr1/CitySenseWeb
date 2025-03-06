@@ -30,6 +30,8 @@ import AuthorityIssueDetails from './pages/AuthorityIssueDetails';
 import AuthorityAnalytics from './pages/AuthorityAnalytics';
 import AdminModeration from './pages/AdminModeration';
 import AdminReport from './pages/AdminReport';
+import ExploreIssue from './pages/ExploreIssue';
+import ExploreIssueDetail from './pages/ExploreIssueDetail';
 
 const App: React.FC = () => {
   const getHomeRoute = () => {
@@ -76,6 +78,8 @@ const App: React.FC = () => {
           <Route path="register" element={<Register />} />
           <Route path="register-citizen" element={<CitizenRegister />} />
           <Route path="register-authority" element={<AuthorityRegister />} />
+          <Route path="explore-issues" element={<ExploreIssue />} />
+          <Route path="explore-issues/detail/:id" element={<ExploreIssueDetail />} />
         </Route>
       </Routes>
     </Suspense>

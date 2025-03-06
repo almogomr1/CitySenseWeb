@@ -73,7 +73,7 @@ export interface TeamUpdateRequest {
 }
 
 export interface IIssue {
-    _id: number;
+    _id: string;
     description: string;
     address: string;
     priority: string;
@@ -83,10 +83,13 @@ export interface IIssue {
     upvotes: number;
     category: string;
     upvoteCount: number;
+    createdAt: string;
+    photoUrl: string;
+    audioUrl: string;
 }
 
 export interface IIssueDetail {
-    _id: number;
+    _id: string;
     description: string;
     address: string;
     priority: string;
@@ -103,7 +106,7 @@ export interface IIssueDetail {
 }
 
 export interface ITeamIssue {
-    _id: number;
+    _id: string;
     description: string;
     address: string;
     priority: string;
@@ -231,5 +234,6 @@ export interface ReportedComment {
         role: string;
     };
 }
+
 
 
