@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
     Row,
     Col,
@@ -15,78 +15,80 @@ import {
 import classnames from 'classnames';
 import GooglePlacesAutocomplete from 'react-google-autocomplete';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { IssueSubmissionRequest } from '../redux/api/types';
 import { toast } from 'react-toastify';
-import { useCreateIssueMutation } from '../redux/api/issueAPI';
+import { useUpdateIssueMutation, useGetIssueQuery } from '../redux/api/issueAPI';
+import { IssueUpdateRequest } from '../redux/api/types';
 
-const IssueSubmission: React.FC = () => {
+const IssueUpdate: React.FC = () => {
     const navigate = useNavigate();
+    const { id } = useParams<{ id: string }>();
 
-    // React Hook Form
     const {
         register,
         handleSubmit,
         formState: { errors },
+        setValue,
         clearErrors,
         setError
-    } = useForm<IssueSubmissionRequest>();
+    } = useForm<IssueUpdateRequest>();
 
-    // Local State
     const [photo, setPhoto] = useState<File | null>(null);
     const [audio, setAudio] = useState<File | null>(null);
     const [address, setAddress] = useState<string>('');
-    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-    // Handlers
+    const [updateIssue, { isLoading, isError, isSuccess, error }] = useUpdateIssueMutation();
+    const { data: issueData, isFetching } = useGetIssueQuery(id);
+
     const handleCancel = useCallback(() => {
         navigate('/');
     }, [navigate]);
 
-    const [createIssue, { isLoading, isError, error, isSuccess, data }] = useCreateIssueMutation();
+    useEffect(() => {
+        if (issueData) {
+            setValue('description', issueData.description);
+            setAddress(issueData.address);
+        }
+    }, [issueData]);
 
-    const onSubmit: SubmitHandler<IssueSubmissionRequest> = async (data) => {
-        setIsSubmitting(true);
-
+    const onSubmit: SubmitHandler<IssueUpdateRequest> = async (data) => {
         if (!address) {
             setError('address', {
                 type: 'manual',
                 message: 'Please select an address using the suggested option.',
             });
-            setIsSubmitting(false);
             return;
         }
 
         try {
             data.address = address;
-
+            console.log(data)
             const submissionData = new FormData();
             submissionData.append('description', data.description);
             if (photo) submissionData.append('photo', photo);
             if (audio) submissionData.append('audio', audio);
             submissionData.append('address', address);
-            await createIssue(submissionData);
+
+            await updateIssue({ id, issue: submissionData });
         } catch (error) {
             console.error(error);
-            toast.error('Failed to submit the issue. Please try again.');
-        } finally {
-            setIsSubmitting(false);
+            toast.error('Failed to update the issue. Please try again.');
         }
     };
 
     useEffect(() => {
         if (isSuccess) {
-            toast.success(data?.message || "Issue submitted successfully!");
-            navigate("/citizen/issues");
+            toast.success('Issue updated successfully!');
+            navigate('/citizen/my-issues');
         }
         if (isError) {
             const errorData = (error as any)?.data?.error;
             if (Array.isArray(errorData)) {
                 errorData.forEach((el: { message: string }) =>
-                    toast.error(el.message, { position: "top-right" })
+                    toast.error(el.message, { position: 'top-right' })
                 );
             } else {
-                const errorMsg = (error as any)?.data?.message || "An unexpected error occurred!";
-                toast.error(errorMsg, { position: "top-right" });
+                const errorMsg = (error as any)?.data?.message || 'An unexpected error occurred!';
+                toast.error(errorMsg, { position: 'top-right' });
             }
         }
     }, [isSuccess, isError]);
@@ -95,7 +97,7 @@ const IssueSubmission: React.FC = () => {
         <div className="main-board container">
             <Row className="my-3">
                 <Col>
-                    <h3 className="mb-3">Report an Issue</h3>
+                    <h3 className="mb-3">Update Issue</h3>
                 </Col>
             </Row>
             <Card>
@@ -130,7 +132,7 @@ const IssueSubmission: React.FC = () => {
                             {/* Photo Upload */}
                             <Col md={6}>
                                 <FormGroup>
-                                    <Label for="photo">Upload a Photo (optional)</Label>
+                                    <Label for="photo">Update Photo (optional)</Label>
                                     <Input
                                         id="photo"
                                         type="file"
@@ -143,7 +145,7 @@ const IssueSubmission: React.FC = () => {
                             {/* Audio Upload */}
                             <Col md={6}>
                                 <FormGroup>
-                                    <Label for="audio">Record an Audio Message (optional)</Label>
+                                    <Label for="audio">Update Audio Message (optional)</Label>
                                     <Input
                                         id="audio"
                                         type="file"
@@ -168,6 +170,7 @@ const IssueSubmission: React.FC = () => {
                                             types: ['address'],
                                             componentRestrictions: { country: 'IL' },
                                         }}
+                                        defaultValue={address}
                                     />
                                     {errors.address && (
                                         <small className="text-danger mt-1">{errors.address.message}</small>
@@ -179,8 +182,8 @@ const IssueSubmission: React.FC = () => {
                         {/* Buttons */}
                         <Row className="mt-4">
                             <Col>
-                                <Button type="submit" color="primary" disabled={isSubmitting}>
-                                    {isSubmitting ? 'Submitting...' : 'Submit'}
+                                <Button type="submit" color="primary" disabled={isLoading || isFetching}>
+                                    {isLoading ? 'Updating...' : 'Update'}
                                 </Button>
                                 <Button
                                     type="button"
@@ -199,4 +202,4 @@ const IssueSubmission: React.FC = () => {
     );
 };
 
-export default IssueSubmission;
+export default IssueUpdate;

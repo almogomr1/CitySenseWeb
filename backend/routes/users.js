@@ -247,6 +247,10 @@ router.put('/suspend/:id', verifyToken(['Admin']), async (req, res) => {
  *   put:
  *     summary: Update user details
  *     description: Allows an admin to update user details. Only accessible by users with 'Admin' role via token verification.
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
@@ -342,6 +346,8 @@ router.put('/update/:id', verifyToken(['Admin']), async (req, res) => {
  *   get:
  *     summary: Retrieve a single user's details
  *     description: Fetch the details of a specific user by ID. Only accessible by users with 'Admin' role via token verification.
+ *     tags:
+ *       - User
  *     parameters:
  *       - name: id
  *         in: path
@@ -384,16 +390,16 @@ router.put('/update/:id', verifyToken(['Admin']), async (req, res) => {
  */
 router.get('/getOneUser/:id', verifyToken(['Admin']), async (req, res) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
-      return res.status(400).send('Malformed user id');
+        return res.status(400).send('Malformed user id');
     }
-  
+
     const user = await User.findById(req.params.id).select('-__v');
     if (!user) {
-      return res.status(400).send('user not found');
+        return res.status(400).send('user not found');
     }
-  
+
     return res.send(user);
-  });
+});
 
 
 module.exports = router;
