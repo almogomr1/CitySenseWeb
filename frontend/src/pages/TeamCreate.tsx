@@ -1,5 +1,6 @@
-import Select, { MultiValue } from "react-select";
-import { SubmitHandler, useForm } from "react-hook-form";
+/* eslint-disable react-hooks/exhaustive-deps */
+import Select from "react-select";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
     Button,
     Card,
@@ -27,7 +28,7 @@ const TeamCreate: React.FC = () => {
     const {
         register,
         handleSubmit,
-        setValue,
+        control,
         formState: { errors },
     } = useForm<TeamCreateFormFields>();
 
@@ -135,7 +136,7 @@ const TeamCreate: React.FC = () => {
                                         id="image"
                                         type="file"
                                         accept="image/*"
-                                        {...register("image")}
+                                        {...register("image", { required: "Team Icon is required." })}
                                     />
                                     {errors.image && (
                                         <small className="text-danger">{errors.image.message}</small>
@@ -188,18 +189,33 @@ const TeamCreate: React.FC = () => {
                             <Col md={6}>
                                 <FormGroup>
                                     <Label for="members">Members</Label>
-                                    <Select
-                                        options={memberOptions}
-                                        isMulti
-                                        isLoading={isFetching}
-                                        placeholder="Select members..."
-                                        onChange={(selected) =>
-                                            setValue("members", selected as SelectOptionType[])
-                                        }
+                                    <Controller
+                                        name="members"
+                                        control={control}
+                                        rules={{
+                                            validate: (value) =>
+                                                (value && value.length > 0) || "At least one member is required.",
+                                        }}
+                                        render={({ field }) => (
+                                            <Select
+                                                {...field}
+                                                options={memberOptions}
+                                                isMulti
+                                                isLoading={isFetching}
+                                                placeholder="Select members..."
+                                                className={classnames({
+                                                    "react-select is-invalid": errors.members,
+                                                })}
+                                                onChange={(selected) => field.onChange(selected)}
+                                            />
+                                        )}
                                     />
                                     {errors.members && (
-                                        <small className="text-danger">{errors.members.message}</small>
+                                        <small className="text-danger">
+                                            {errors.members.message}
+                                        </small>
                                     )}
+
                                 </FormGroup>
                             </Col>
                         </Row>

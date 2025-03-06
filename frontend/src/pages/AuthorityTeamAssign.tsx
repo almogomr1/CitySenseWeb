@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge, Col, DropdownItem, DropdownMenu, DropdownToggle, Row, UncontrolledDropdown } from "reactstrap";
 import { useGetTeamIssuesQuery } from "../redux/api/issueAPI";
 import { useEffect } from "react";
-import { ChevronDown, Eye, Layers, MoreVertical } from "react-feather";
+import { ChevronDown, Layers, MoreVertical } from "react-feather";
 import { ITeamIssue } from "../redux/api/types";
 import DataTable, { TableColumn } from "react-data-table-component";
 

@@ -81,6 +81,23 @@ export interface IIssue {
     upvoteCount: number;
 }
 
+export interface IIssueDetail {
+    _id: number;
+    description: string;
+    address: string;
+    priority: string;
+    status: string;
+    dateSubmitted: string;
+    upvotes: number;
+    upvoteCount: number;
+    createdBy: {
+      _id: number;
+      fullname: string;
+      email: string;
+      role: string;
+    };
+  }
+
 export interface ITeamIssue {
     _id: number;
     description: string;
@@ -93,7 +110,8 @@ export interface ITeamIssue {
 }
 
 export interface IComment {
-    id: number;
+    _id: string;
+    issueId: string;
     author: string;
     timestamp: string;
     content: string;
@@ -165,6 +183,14 @@ export interface ProfileRequest {
     firstname: string;
     lastname: string;
     email: string;
+}
+
+export interface INotification {
+    _id: string;
+    message: string;
+    user: string;
+    issue: string;
+    read: boolean;
 }
 
 
