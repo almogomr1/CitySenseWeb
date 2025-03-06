@@ -28,6 +28,8 @@ import IssueUpdate from './pages/IssueUpdate';
 import AuthorityTeamAssignUpdate from './pages/AuthorityTeamAssignUpdate';
 import AuthorityIssueDetails from './pages/AuthorityIssueDetails';
 import AuthorityAnalytics from './pages/AuthorityAnalytics';
+import AdminModeration from './pages/AdminModeration';
+import AdminReport from './pages/AdminReport';
 
 const App: React.FC = () => {
   const getHomeRoute = () => {
@@ -64,7 +66,9 @@ const App: React.FC = () => {
             <Route path="authority/analytics" element={<AuthorityAnalytics />} />
           </Route>
           <Route element={<RequiredUser allowedRoles={['Admin']} />}>
+            <Route path="admin/moderation" element={<AdminModeration />} />
             <Route path="admin/users" element={<AdminUser />} />
+            <Route path="admin/report" element={<AdminReport />} />
             <Route path="admin/users/:id" element={<AdminUserEdit />} />
           </Route>
           <Route path="admin/login" element={<AdminLogin />} />

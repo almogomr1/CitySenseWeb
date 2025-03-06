@@ -33,6 +33,7 @@ const teamRoute = require('./routes/teams');
 const notificationRoute = require('./routes/notifications');
 const commentRoute = require('./routes/comments');
 const analyticRoute = require('./routes/analytics');
+const moderationRoute = require('./routes/moderation');
 
 // Increase parse limit
 app.use(bodyParser.json({ limit: '50mb', extended: true }));
@@ -63,6 +64,7 @@ app.use('/api/teams', teamRoute);
 app.use('/api/notifications', notificationRoute);
 app.use('/api/comments', commentRoute);
 app.use('/api/analytics', analyticRoute);
+app.use('/api/moderation', moderationRoute);
 
 // Extended: https://swagger.io/specification/#infoObject
 const swaggerOptions = {

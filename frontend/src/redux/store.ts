@@ -8,6 +8,7 @@ import { teamAPI } from './api/teamAPI';
 import { issueAPI } from './api/issueAPI';
 import { notificationAPI } from './api/notificationAPI';
 import { analyticAPI } from './api/analyticAPI';
+import { moderationAPI } from './api/moderationAPI';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     [issueAPI.reducerPath]: issueAPI.reducer,
     [notificationAPI.reducerPath]: notificationAPI.reducer,
     [analyticAPI.reducerPath]: analyticAPI.reducer,
+    [moderationAPI.reducerPath]: moderationAPI.reducer,
     userState: userReducer
 
   },
@@ -31,6 +33,7 @@ export const store = configureStore({
         issueAPI.middleware,
         notificationAPI.middleware,
         analyticAPI.middleware,
+        moderationAPI.middleware,
     ]),
 });
 

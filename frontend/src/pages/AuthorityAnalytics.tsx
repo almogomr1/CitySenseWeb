@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Card, CardBody, Form, FormGroup, Label, Input, Button } from 'reactstrap';
-import { Bar } from 'react-chartjs-2';
+import { Bar, Line, Pie } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -9,12 +9,27 @@ import {
     Title,
     Tooltip,
     Legend,
+    ArcElement,
+    PointElement,
+    LineElement,
 } from 'chart.js';
 import { useGetAuthorityAnalyticsQuery } from '../redux/api/analyticAPI';
 import GooglePlacesAutocomplete from 'react-google-autocomplete';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 // Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+    ArcElement,
+    PointElement,
+    LineElement
+);
 
 interface Filters {
     startDate: string;
@@ -64,6 +79,34 @@ const AuthorityAnalytics: React.FC = () => {
         }
     };
 
+    const handleDownloadReport = () => {
+        const doc = new jsPDF();
+        doc.text('Analytics Report', 14, 16);
+
+        autoTable(doc, {
+            startY: 20,
+            head: [['Metric', 'Value']],
+            body: [
+                ['Total Issues Reported', analyticsData?.totalIssues || 0],
+                ['Issues Resolved This Month', analyticsData?.resolvedIssuesThisMonth || 0],
+                ['Average Resolution Time', `${(analyticsData?.avgResolutionTime / (1000 * 60 * 60)).toFixed(2)} hours` || 'N/A'],
+            ],
+        });
+
+        // Handling issues by category in table
+        if (analyticsData?.issuesByCategory?.length) {
+            autoTable(doc, {
+                // startY: doc.lastAutoTable.finalY + 10, // this ensures proper positioning
+                head: [['Category', 'Count']],
+                body: analyticsData.issuesByCategory.map((cat: any) => [cat._id, cat.count]),
+            });
+        }
+
+        // Download the generated PDF
+        doc.save('analytics_report.pdf');
+    };
+
+    // Data for Bar Chart: Issues by Category
     const barData = {
         labels: analyticsData?.issuesByCategory?.map((cat: any) => cat._id) || [],
         datasets: [
@@ -75,8 +118,33 @@ const AuthorityAnalytics: React.FC = () => {
         ],
     };
 
+    // Data for Line Chart: Resolution Times
+    const lineData = {
+        labels: analyticsData?.resolutionTimes?.map((entry: any) => entry.month) || [],
+        datasets: [
+            {
+                label: 'Resolution Times (in days)',
+                data: analyticsData?.resolutionTimes?.map((entry: any) => entry.avgResolutionTime) || [],
+                borderColor: '#FF5733',
+                fill: false,
+            },
+        ],
+    };
+
+    // Data for Pie Chart: Issue Priority Distribution
+    const pieData = {
+        labels: analyticsData?.issuesByPriority?.map((priority: any) => priority._id) || [],
+        datasets: [
+            {
+                label: 'Issues by Priority',
+                data: analyticsData?.issuesByPriority?.map((priority: any) => priority.count) || [],
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+            },
+        ],
+    };
+
     return (
-        <Container>
+        <Container className='main-board'>
             <Row className="my-4">
                 <Col>
                     <h1>Analytics Dashboard</h1>
@@ -149,6 +217,7 @@ const AuthorityAnalytics: React.FC = () => {
                         </CardBody>
                     </Card>
                 </Col>
+
                 <Col md={9}>
                     {isLoading ? (
                         <p>Loading...</p>
@@ -172,14 +241,42 @@ const AuthorityAnalytics: React.FC = () => {
                                     </Card>
                                 </Col>
                             </Row>
+
                             <Row>
-                                <Col>
+                                <Col md={6}>
                                     <Card className="mb-4">
                                         <CardBody>
                                             <h5>Issues by Category</h5>
                                             <Bar data={barData} />
                                         </CardBody>
                                     </Card>
+                                </Col>
+                                <Col md={6}>
+                                    <Card className="mb-4">
+                                        <CardBody>
+                                            <h5>Resolution Times Over Months</h5>
+                                            <Line data={lineData} />
+                                        </CardBody>
+                                    </Card>
+                                </Col>
+                            </Row>
+
+                            <Row>
+                                <Col md={6}>
+                                    <Card className="mb-4">
+                                        <CardBody>
+                                            <h5>Issue Priority Distribution</h5>
+                                            <Pie data={pieData} />
+                                        </CardBody>
+                                    </Card>
+                                </Col>
+                            </Row>
+
+                            <Row>
+                                <Col>
+                                    <Button color="secondary" onClick={handleDownloadReport}>
+                                        Download Report
+                                    </Button>
                                 </Col>
                             </Row>
                         </>

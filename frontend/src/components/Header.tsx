@@ -177,9 +177,15 @@ const Header: React.FC = () => {
                                             Morderation
                                         </NavLink>
                                     </NavItem>
+                                    
                                     <NavItem className="nav-item-responsive">
                                         <NavLink onClick={() => { navigate('/admin/users'); mobileToggle(); }}>
                                             Users
+                                        </NavLink>
+                                    </NavItem>
+                                    <NavItem className="nav-item-responsive">
+                                        <NavLink onClick={() => { navigate('/admin/report'); mobileToggle(); }}>
+                                            Report
                                         </NavLink>
                                     </NavItem>
                                     <UncontrolledDropdown nav inNavbar>
