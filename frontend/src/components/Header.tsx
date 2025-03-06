@@ -138,6 +138,11 @@ const Header: React.FC = () => {
                                             Dashboard
                                         </NavLink>
                                     </NavItem>
+                                    <NavItem className="nav-item-responsive">
+                                        <NavLink onClick={() => { navigate('/authority/teams'); mobileToggle(); }}>
+                                            Teams
+                                        </NavLink>
+                                    </NavItem>
                                     <UncontrolledDropdown nav inNavbar>
                                         <DropdownToggle nav caret>
                                             <img src={userImg} alt="user" className="user-img" />

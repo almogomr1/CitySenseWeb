@@ -19,6 +19,8 @@ import AuthorityDashboard from './pages/AuthorityDashboard';
 import AdminUser from './pages/AdminUser';
 import AdminLogin from './pages/auth/AdminLogin';
 import AdminUserEdit from './pages/AdminUserEdit';
+import Teams from './pages/Teams';
+import TeamCreate from './pages/TeamCreate';
 
 const App: React.FC = () => {
   const getHomeRoute = () => {
@@ -44,6 +46,8 @@ const App: React.FC = () => {
           </Route>
           <Route element={<RequiredUser allowedRoles={['Authority']} />}>
             <Route path="authority/dashboard" element={<AuthorityDashboard />} />
+            <Route path="authority/teams" element={<Teams />} />
+            <Route path="authority/team-create" element={<TeamCreate />} />
           </Route>
           <Route element={<RequiredUser allowedRoles={['Admin']} />}>
             <Route path="admin/users" element={<AdminUser />} />
