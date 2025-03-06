@@ -34,11 +34,6 @@ const MyIssues: React.FC = () => {
         []
     );
 
-    const handleUpvote = useCallback((id: number) => {
-        console.log(`Upvoted issue with ID: ${id}`);
-        // Add your logic for handling upvote here
-    }, []);
-
     const columns: TableColumn<IIssue>[] = [
         {
             name: 'Description',

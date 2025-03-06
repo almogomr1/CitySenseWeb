@@ -115,6 +115,7 @@ export interface IComment {
     author: string;
     timestamp: string;
     content: string;
+    notificationType: string;
 }
 
 export interface ITeam {

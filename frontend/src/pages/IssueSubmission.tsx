@@ -89,7 +89,7 @@ const IssueSubmission: React.FC = () => {
                 toast.error(errorMsg, { position: "top-right" });
             }
         }
-    }, [isSuccess, isError]);
+    }, [isLoading]);
 
     return (
         <div className="main-board container">
