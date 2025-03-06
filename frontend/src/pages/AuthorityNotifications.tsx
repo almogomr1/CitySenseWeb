@@ -210,7 +210,7 @@ const AuthorityNotifications: React.FC = () => {
                                     responsive
                                     noHeader
                                     pagination
-                                    paginationRowsPerPageOptions={[10, 20, 50]}
+                                    paginationRowsPerPageOptions={[15, 30, 50, 100]}
                                     sortIcon={<ChevronDown />}
                                 />
                             </Card>

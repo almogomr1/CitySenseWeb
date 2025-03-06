@@ -72,6 +72,7 @@ const IssueDetails: React.FC = () => {
                             <p><strong>Description:</strong> {issue.description}</p>
                             <p><strong>Address:</strong> {issue.address}</p>
                             <p><strong>Priority:</strong> {issue.priority}</p>
+                            <p><strong>Category:</strong> {issue?.category}</p>
                             <p><strong>Status:</strong> {issue.status}</p>
                         </Col>
                         <Col md={6}>

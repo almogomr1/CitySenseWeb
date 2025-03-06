@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react';
 import { Col, Row, Card, CardBody, Button } from 'reactstrap';
 import { useParams, useNavigate } from 'react-router-dom';
-import { IComment } from '../redux/api/types';
-import { useGetIssueQuery, usePostIssueMutation } from '../redux/api/issueAPI';
-import { SubmitHandler } from 'react-hook-form';
+import { useGetIssueQuery } from '../redux/api/issueAPI';
 import FullScreenLoader from '../components/FullScreenLoader';
 import userImg from '../assets/images/user.png';
 import { getDateFormat } from '../utils/Utils';
@@ -14,17 +12,10 @@ const AuthorityIssueDetails: React.FC = () => {
     const { data: issue, refetch: refetchIssue, isLoading } = useGetIssueQuery(id ?? '', {
         skip: !id,
     });
-    const [postIssue] = usePostIssueMutation();
 
     useEffect(() => {
         refetchIssue();
     }, [refetchIssue]);
-
-    const onSubmit: SubmitHandler<IComment> = async (formData) => {
-        formData.issueId = id ?? "";
-        await postIssue(formData);
-        refetchIssue();
-    }
 
     if (isLoading) {
         return (<FullScreenLoader />);

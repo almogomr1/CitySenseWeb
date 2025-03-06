@@ -335,7 +335,7 @@ router.post(
         }
 
         try {
-            const { description, address } = req.body;
+            const { description, address, category } = req.body;
             const photoUrl = req.files.photo ? process.env.SERVER_URL + '/' + req.files.photo[0].path.replace(/\\/g, '/').replace('public/', '') : null;
             const audioUrl = req.files.audio ? process.env.SERVER_URL + '/' + req.files.audio[0].path.replace(/\\/g, '/').replace('public/', '') : null;
 
@@ -354,6 +354,7 @@ router.post(
                 photoUrl,
                 audioUrl,
                 address,
+                category,
                 priority: classification.priority || 'Moderate',
                 createdBy: req.user._id
             });
@@ -464,11 +465,12 @@ router.put(
 
         try {
             const issueId = req.params.id;
-            const { description, address } = req.body;
+            const { description, address, category } = req.body;
 
             const updateFields = {};
             if (description) updateFields.description = description;
             if (address) updateFields.address = address;
+            if (category) updateFields.category = category;
 
             // File handling for optional updates
             if (req.files && req.files.photo) {
@@ -689,6 +691,7 @@ router.get('/getOneIssue/:id', verifyToken(['Admin', 'Authority', 'Citizen']), a
                     priority: 1,
                     status: 1,
                     issueNumber: 1,
+                    category: 1,
                     createdBy: '$createdByDetails', // Include the formatted `createdBy` details
                     comments: 1, // Include the updated `comments` array
                     createdAt: 1,
