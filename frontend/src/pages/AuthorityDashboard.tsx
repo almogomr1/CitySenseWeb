@@ -20,7 +20,7 @@ import DataTable, { TableColumn } from 'react-data-table-component';
 import Select from 'react-select';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, Eye, MoreVertical, Trash } from 'react-feather';
+import { Archive, ChevronDown, Eye, MoreVertical, Trash } from 'react-feather';
 import { useDeleteIssueMutation, useGetIssuesQuery } from '../redux/api/issueAPI';
 import FullScreenLoader from '../components/FullScreenLoader';
 import { IIssue } from '../redux/api/types';
@@ -163,6 +163,13 @@ const AuthorityDashboard: React.FC = () => {
                             <Eye size={14} className="mx-1" />
                             <span className="align-middle mx-2">View</span>
                         </DropdownItem>
+                        <DropdownItem
+                            className="w-100"
+                            onClick={() => navigate(`/authority/issues-update/${row._id}`)}
+                        >
+                            <Archive size={14} className="mx-1" />
+                            <span className="align-middle mx-2">Edit</span>
+                        </DropdownItem>
                         <DropdownItem onClick={() => toggleDeleteModal(row._id)}>
                             <Trash size={14} className="mx-1" />
                             <span className="align-middle mx-2">Delete</span>
@@ -233,7 +240,7 @@ const AuthorityDashboard: React.FC = () => {
                         </Col>
                     </Row>
                     <Row>
-                        {[ 
+                        {[
                             { label: 'Total Issues', value: stats.total, color: 'bg-primary' },
                             { label: 'Pending Issues', value: stats.pending, color: 'bg-warning' },
                             { label: 'Resolved Issues', value: stats.resolved, color: 'bg-success' },

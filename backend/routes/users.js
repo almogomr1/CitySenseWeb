@@ -112,6 +112,11 @@ router.get('/', verifyToken(['Admin', 'Citizen', 'Authority']), async (req, res)
     })
 });
 
+router.get('/authorities', async (req, res) => {
+    const authorities = await User.find({ role: "Authority" }).select('-password -__v');
+    return res.send(authorities);
+});
+
 /**
  * @openapi
  * /api/users/logout:
@@ -401,5 +406,31 @@ router.get('/getOneUser/:id', verifyToken(['Admin']), async (req, res) => {
     return res.send(user);
 });
 
+router.get('/contacts', verifyToken(['Admin', 'Authority', 'Citizen']), async (req, res) => {
+    const curUser = await User.findById(req.user._id);
+    try {
+        // If the user is an Authority
+        if (req.user.role === 'Authority') {
+            // Return the Citizens associated with this Authority
+            const citizens = await User.find({ authority: req.user._id, role: 'Citizen' }).select('-password -__v');
+            return res.send(citizens);
+        }
+
+        // If the user is a Citizen
+        if (req.user.role === 'Citizen') {
+            // Return the Authority associated with this Citizen
+            const authority = await User.find({ _id: curUser.authority, role: 'Authority' }).select('-password -__v');
+            return res.send(authority);
+        }
+
+        // If the user is an Admin, they can see both Authorities and Citizens
+        const users = await User.find({ role: { $in: ['Authority', 'Citizen'] } }).select('-password -__v');
+        return res.send(users);
+
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        return res.status(500).send({ error: 'Internal server error' });
+    }
+});
 
 module.exports = router;

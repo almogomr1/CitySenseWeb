@@ -56,7 +56,6 @@ const AuthorityNotifications: React.FC = () => {
     }, [type, dateRange]);
 
     const handleMarkAsRead = async (id: string) => {
-        console.log(id)
         await readMarkNotification(id);
     };
 

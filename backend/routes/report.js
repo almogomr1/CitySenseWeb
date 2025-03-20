@@ -7,7 +7,6 @@ const router = express.Router();
 router.get('/admin', verifyToken(['Admin']), async (req, res) => {
     try {
         const { startDate, endDate, userRole, location, reportType } = req.query;
-        console.log(req.query, "---------")
 
         // Build filters for issues
         const issueFilters = {};

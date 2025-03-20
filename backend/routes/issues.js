@@ -3,10 +3,16 @@ const { body, validationResult } = require('express-validator');
 const multer = require("multer");
 const mongoose = require('mongoose');
 const Issue = require('../models/Issue');
+const User = require('../models/User');
 const fs = require('fs');
 const path = require('path');
 const verifyToken = require('../utils/verifyToken');
 const { classifyIssue } = require('../utils/openaiClient');
+const { OpenAI } = require('openai');
+
+const client = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+});
 
 // Configure Multer for file uploads
 const storage = multer.diskStorage({
@@ -99,6 +105,7 @@ const upload = multer({
  */
 router.get(
     '/',
+    verifyToken(['Admin', 'Citizen', 'Authority']),
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -106,19 +113,30 @@ router.get(
         }
 
         try {
-            const priorityFilter = req.query.priority !== '' && typeof req.query.priority !== 'undefined' ? { priority: req.query.priority } : {};
-            const statusFilter = req.query.status !== '' && typeof req.query.status !== 'undefined' ? { status: req.query.status } : {};
-            const categoryFilter = req.query.category !== '' && typeof req.query.category !== 'undefined' ? { category: req.query.category } : {};
-            const addressFilter = req.query.location !== '' && typeof req.query.location !== 'undefined' ? { address: { $regex: req.query.location, $options: 'i' } } : {};
+            const priorityFilter = req.query.priority ? { priority: req.query.priority } : {};
+            const statusFilter = req.query.status ? { status: req.query.status } : {};
+            const categoryFilter = req.query.category ? { category: req.query.category } : {};
+            const addressFilter = req.query.location ? { address: { $regex: req.query.location, $options: 'i' } } : {};
+
+            let userFilter = {};
+
+            if (req.user.role === 'Authority') {
+                // Fetch all citizens linked to this authority
+                const citizens = await User.find({ authority: req.user._id }).select('_id');
+
+                // Ensure issues are only from the authority’s citizens
+                userFilter = { createdBy: { $in: citizens.map(citizen => citizen._id) } };
+            }
+
             const filterParams = {
                 $and: [
                     statusFilter,
                     priorityFilter,
                     categoryFilter,
-                    addressFilter
+                    addressFilter,
+                    userFilter
                 ],
             };
-
             // Fetch issues, projecting upvote count
             const issues = await Issue.aggregate([
                 { $match: filterParams },
@@ -199,7 +217,6 @@ router.get(
         }
     }
 );
-
 
 /**
  * @swagger
@@ -400,7 +417,7 @@ router.post(
         }
 
         try {
-            const { description, address, category } = req.body;
+            const { description, address, category, priority } = req.body;
 
             const photoFile = req.files.photo ? req.files.photo[0] : null;
             const audioFile = req.files.audio ? req.files.audio[0] : null;
@@ -420,22 +437,9 @@ router.post(
             }
 
             // Handle AI processing if audio is provided
-            let transcription = null;
-            let priority = 'Moderate';
-
-            if (audioFile) {
-                const localAudioPath = path.resolve(audioFile.path); // Use the actual filesystem path
-                const aiResult = await classifyIssue(localAudioPath);
-                transcription = aiResult.transcription;
-                priority = aiResult.priority || 'Moderate';
-
-                // Clean up the uploaded audio file after processing
-                fs.unlinkSync(localAudioPath);
-            }
-
             const newIssue = new Issue({
                 description: description,
-                transcription: transcription,
+                transcription: description,
                 photoUrl,
                 audioUrl,
                 address,
@@ -458,6 +462,68 @@ router.post(
         }
     }
 );
+
+router.post('/generate-ai', upload.fields([{ name: 'photo', maxCount: 1 }, { name: 'audio', maxCount: 1 }]), async (req, res) => {
+    try {
+        const { description } = req.body;
+        const photo = req.files.photo ? req.files.photo[0] : null;
+        const audio = req.files.audio ? req.files.audio[0] : null;
+
+        let contentToProcess = description || '';  // Default to the description if provided
+
+        // Process audio if it's provided
+        if (audio) {
+            const audioFile = fs.createReadStream(audio.path);
+            const transcriptionResponse = await client.audio.transcriptions.create({
+                file: audioFile,
+                model: "whisper-1",
+                language: "en",
+            });
+            contentToProcess = transcriptionResponse.text.trim();
+        }
+
+        if (photo) {
+            // Mock description for the photo (replace with actual photo analysis logic)
+            contentToProcess += ' The image provided contains some important details related to the issue.';
+        }
+
+        const messages = [
+            {
+                role: 'system',
+                content: 'You are an assistant that classifies urban issues and assigns priority levels.',
+            },
+            {
+                role: 'user',
+                content: `
+                    Based on the following information, provide a detailed description and assign a priority level:
+                    Priority levels are Critical, Moderate, and Low.
+                    Information: "${contentToProcess}"
+                    Respond in JSON format:
+                    {
+                      "description": "<Detailed Description>",
+                      "priority": "<Priority>"
+                    }
+                `,
+            },
+        ];
+
+        const classificationResponse = await client.chat.completions.create({
+            model: "gpt-4",
+            messages,
+            max_tokens: 300,
+        });
+
+        const aiResponse = JSON.parse(classificationResponse.choices[0].message.content.trim());
+
+        res.status(200).json({
+            description: aiResponse.description || 'No description generated.',
+            priority: aiResponse.priority || 'Moderate',
+        });
+    } catch (error) {
+        console.error('Error processing AI generation:', error.message);
+        res.status(500).json({ error: 'Failed to generate description and priority.' });
+    }
+});
 
 /**
  * @swagger
@@ -525,7 +591,7 @@ router.put(
         body('description').optional().isString().withMessage('Description must be a string.'),
         body('address').optional().notEmpty().withMessage('Address cannot be empty if provided.'),
     ],
-    verifyToken(['Citizen']),
+    verifyToken(['Citizen', 'Authority']),
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -534,7 +600,7 @@ router.put(
 
         try {
             const issueId = req.params.id;
-            const { description, address, category } = req.body;
+            const { description, address, category, priority } = req.body;
 
             const photoFile = req.files?.photo ? req.files.photo[0] : null;
             const audioFile = req.files?.audio ? req.files.audio[0] : null;
@@ -552,23 +618,13 @@ router.put(
             if (category) updateFields.category = category;
             if (photoUrl) updateFields.photoUrl = photoUrl;
             if (audioUrl) updateFields.audioUrl = audioUrl;
+            if (priority) updateFields.priority = priority;
 
             // Ensure at least one field is being updated
             if (Object.keys(updateFields).length === 0) {
                 return res.status(400).json({
                     error: 'At least one field (description, address, photo, or audio) must be provided for the update.',
                 });
-            }
-
-            // Handle AI processing if audio is updated
-            if (audioFile) {
-                const localAudioPath = path.resolve(audioFile.path);
-                const aiResult = await classifyIssue(localAudioPath);
-                updateFields.transcription = aiResult.transcription;
-                updateFields.priority = aiResult.priority || 'Moderate';
-
-                // Clean up uploaded audio file after processing
-                fs.unlinkSync(localAudioPath);
             }
 
             // Find and update the issue
@@ -667,6 +723,8 @@ router.get('/getOneIssue/:id', verifyToken(['Admin', 'Authority', 'Citizen']), a
             return res.status(400).send('Malformed issue ID');
         }
 
+        const userId = req.user._id; // Get the user ID from the token (assumed to be in req.user)
+
         // Use aggregation to fetch the issue with comments, their creators, and team details
         const issueData = await Issue.aggregate([
             {
@@ -752,7 +810,45 @@ router.get('/getOneIssue/:id', verifyToken(['Admin', 'Authority', 'Citizen']), a
                                         0,
                                     ],
                                 },
+                                status: '$$comment.status', // Include status
+                                reason: '$$comment.reason', // Include reason
                             },
+                        },
+                    },
+                },
+            },
+            {
+                // Only return "Pending" comments if the user is the owner of the comment
+                $addFields: {
+                    comments: {
+                        $map: {
+                            input: '$comments',
+                            as: 'comment',
+                            in: {
+                                $cond: {
+                                    if: { $eq: ['$$comment.status', 'Pending'] },
+                                    then: {
+                                        $cond: {
+                                            if: { $eq: ['$$comment.createdBy._id', new mongoose.Types.ObjectId(userId)] },
+                                            then: '$$comment',
+                                            else: null,
+                                        },
+                                    },
+                                    else: '$$comment',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            {
+                // Remove null values from the comments array
+                $addFields: {
+                    comments: {
+                        $filter: {
+                            input: '$comments',
+                            as: 'comment',
+                            cond: { $ne: ['$$comment', null] },
                         },
                     },
                 },
@@ -811,6 +907,7 @@ router.get('/getOneIssue/:id', verifyToken(['Admin', 'Authority', 'Citizen']), a
         return res.status(500).send('Internal Server Error');
     }
 });
+
 
 router.get('/explore/getOneIssue/:id', async (req, res) => {
     try {

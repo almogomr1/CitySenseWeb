@@ -1,3 +1,4 @@
+// index.js
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
@@ -10,18 +11,15 @@ const swaggerUI = require('swagger-ui-express');
 
 dotenv.config();
 
-const app = express();
-
+const app = express(); // Create the express app here
 const PORT = process.env.PORT || 3009;
 
 // Connect to DB
 mongoose.connect(process.env.MONGO_URL)
     .then(() => {
-        // Connection successful
         console.log('👓 Connected to DB')
     })
     .catch((error) => {
-        // Handle connection error
         console.log('Connection Error => : ', error.message)
     });
 
@@ -44,20 +42,19 @@ app.use(express.static(path.join(__dirname, '/public')));
 app.use(
     cors({
         credentials: true,
-        origin: [
-            'http://localhost:9000'
-        ],
+        origin: ['http://localhost:9000'], // or whichever origins
     }),
 );
 
 app.use(express.json());
 app.use(cookieParser());
 
-// Route middleware
+// Simple route
 app.get('/', (req, res) => {
     res.send('City Sense API Server is running!');
 });
 
+// Actual route mounting
 app.use('/api/auth', authRoute);
 app.use('/api/users', userRoute);
 app.use('/api/issues', issueRoute);
@@ -68,7 +65,7 @@ app.use('/api/analytics', analyticRoute);
 app.use('/api/moderation', moderationRoute);
 app.use('/api/report', reportRoute);
 
-// Extended: https://swagger.io/specification/#infoObject
+// Swagger config
 const swaggerOptions = {
     failOnErrors: true,
     definition: {
@@ -79,23 +76,28 @@ const swaggerOptions = {
             description: 'CitySense - Smart Urban Issue Reporting Platform'
         },
         components: {
-          securitySchemes: {
-            bearerAuth: {
-              type: 'http',
-              scheme: 'bearer',
-              bearerFormat: 'JWT',
-              description: 'Enter your JWT token inside this field to authenticate your requests. The format should be: {your_token_here}'
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT',
+                    description: 'Enter JWT token here.'
+                }
             }
-          }
         },
         security: [{
-          bearerAuth: []
+            bearerAuth: []
         }]
     },
-    apis: ['./routes/*.js'], // Adjust the path to reflect where your route files are located
+    apis: ['./routes/*.js'],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 
-app.listen(PORT, () => console.log(`🛺  API Server UP and Running at ${process.env.SERVER_URL}`));
+// Export the app for testing (important!)
+module.exports = app;
+
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => console.log(`🛺  API Server UP and Running at ${process.env.SERVER_URL}`));
+}

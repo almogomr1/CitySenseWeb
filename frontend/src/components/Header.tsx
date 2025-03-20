@@ -89,11 +89,11 @@ const Header: React.FC = () => {
                         {!user && (
                             <>
                                 <Nav className="ms-auto" navbar>
-                                    <NavItem className="nav-item-responsive">
+                                    {/* <NavItem className="nav-item-responsive">
                                         <NavLink onClick={() => { navigate('/explore-issues'); mobileToggle(); }}>
                                             Explore Issues
                                         </NavLink>
-                                    </NavItem>
+                                    </NavItem> */}
                                     <UncontrolledDropdown nav inNavbar>
                                         <DropdownToggle nav caret>
                                             <img src={userImg} alt="user" className="user-img" />
@@ -117,6 +117,11 @@ const Header: React.FC = () => {
                                     <NavItem className="nav-item-responsive">
                                         <NavLink onClick={() => { navigate('/citizen/my-issues'); mobileToggle(); }}>
                                             My Issues
+                                        </NavLink>
+                                    </NavItem>
+                                    <NavItem className="nav-item-responsive">
+                                        <NavLink onClick={() => { navigate('/citizen/message'); mobileToggle(); }}>
+                                            Chat
                                         </NavLink>
                                     </NavItem>
                                     <UncontrolledDropdown nav inNavbar>
@@ -156,6 +161,11 @@ const Header: React.FC = () => {
                                     <NavItem className="nav-item-responsive">
                                         <NavLink onClick={() => { navigate('/authority/analytics'); mobileToggle(); }}>
                                             Analytics
+                                        </NavLink>
+                                    </NavItem>
+                                    <NavItem className="nav-item-responsive">
+                                        <NavLink onClick={() => { navigate('/authority/message'); mobileToggle(); }}>
+                                            Chat
                                         </NavLink>
                                     </NavItem>
                                     <UncontrolledDropdown nav inNavbar>

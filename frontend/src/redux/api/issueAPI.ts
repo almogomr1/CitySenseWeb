@@ -20,6 +20,19 @@ export const issueAPI = createApi({
             transformResponse: (result: { data: { issue: any } }) =>
                 result
         }),
+        generateAI: builder.mutation<any, any>({
+            query(issue) {
+                return {
+                    url: '/issues/generate-ai',
+                    method: 'POST',
+                    credentials: 'include',
+                    body: issue,
+                };
+            },
+            invalidatesTags: [{ type: 'Issues', id: 'LIST' }],
+            transformResponse: (result: { data: { issue: any } }) =>
+                result
+        }),
         updateIssue: builder.mutation<any, any>({
             query({ id, issue }) {
                 return {
@@ -219,4 +232,5 @@ export const {
     useUpdateStatusMutation,
     useGetExploreIssuesQuery,
     useGetExploreIssueQuery,
+    useGenerateAIMutation,
 } = issueAPI;

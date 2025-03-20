@@ -4,23 +4,33 @@ export interface GenericResponse {
 }
 
 export interface IUser {
+    _id: string;
+    username: string; // Added this property
+    avatar: string;
+    lastMessage?: {
+      content: string;
+      createdAt: string;
+    };
+    unreadCount: number; // Added this property
     fullname: string;
     email: string;
     lastLogin: string;
     role: string;
     status: string;
-    _id: string;
     createdAt: string;
-    updatedAtt: string;
-}
+    updatedAt: string;
+  }
+  
 
 export interface RegisterUserRequest {
     fullname: string;
     email: string;
     password: string;
     passwordConfirm: string;
-    role: string;
+    role: 'Citizen' | 'Authority' | 'Admin';
+    authority?: string; // Required only if role is 'Citizen'
 }
+
 
 export interface LoginUserRequest {
     email: string;
@@ -33,6 +43,7 @@ export interface IssueSubmissionRequest {
     audio?: File;
     address: string;
     category: string;
+    priority: string;
 }
 
 export interface IssueUpdateRequest {
@@ -41,6 +52,7 @@ export interface IssueUpdateRequest {
     audio?: File;
     address: string;
     category: string;
+    priority: string;
 }
 
 export interface TeamCreateRequest {

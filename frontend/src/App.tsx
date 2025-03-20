@@ -30,8 +30,10 @@ import AuthorityIssueDetails from './pages/AuthorityIssueDetails';
 import AuthorityAnalytics from './pages/AuthorityAnalytics';
 import AdminModeration from './pages/AdminModeration';
 import AdminReport from './pages/AdminReport';
-import ExploreIssue from './pages/ExploreIssue';
-import ExploreIssueDetail from './pages/ExploreIssueDetail';
+import AuthorityMessage from './pages/AuthorityMessage';
+import CitizenMessage from './pages/CitizenMessage';
+// import ExploreIssue from './pages/ExploreIssue';
+// import ExploreIssueDetail from './pages/ExploreIssueDetail';
 
 const App: React.FC = () => {
   const getHomeRoute = () => {
@@ -54,10 +56,12 @@ const App: React.FC = () => {
             <Route path="citizen/issue-detail/:id" element={<IssueDetails />} />
             <Route path="citizen/my-issues" element={<MyIssues />} />
             <Route path="citizen/issues-submission" element={<IssueSubmission />} />
-            <Route path="citizen/issues-update/:id" element={<IssueUpdate />} />
+            <Route path="citizen/message" element={<CitizenMessage />} />
+            
           </Route>
           <Route element={<RequiredUser allowedRoles={['Authority']} />}>
             <Route path="authority/dashboard" element={<AuthorityDashboard />} />
+            <Route path="authority/issues-update/:id" element={<IssueUpdate />} />
             <Route path="authority/notifications" element={<AuthorityNotifications />} />
             <Route path="authority/issue-detail/:id" element={<AuthorityIssueDetails />} />
             <Route path="authority/team-assigns" element={<AuthorityTeamAssign />} />
@@ -66,6 +70,7 @@ const App: React.FC = () => {
             <Route path="authority/team-create" element={<TeamCreate />} />
             <Route path="authority/team-update/:id" element={<TeamUpdate />} />
             <Route path="authority/analytics" element={<AuthorityAnalytics />} />
+            <Route path="authority/message" element={<AuthorityMessage />} />
           </Route>
           <Route element={<RequiredUser allowedRoles={['Admin']} />}>
             <Route path="admin/moderation" element={<AdminModeration />} />
@@ -78,8 +83,8 @@ const App: React.FC = () => {
           <Route path="register" element={<Register />} />
           <Route path="register-citizen" element={<CitizenRegister />} />
           <Route path="register-authority" element={<AuthorityRegister />} />
-          <Route path="explore-issues" element={<ExploreIssue />} />
-          <Route path="explore-issues/detail/:id" element={<ExploreIssueDetail />} />
+          {/* <Route path="explore-issues" element={<ExploreIssue />} />
+          <Route path="explore-issues/detail/:id" element={<ExploreIssueDetail />} /> */}
         </Route>
       </Routes>
     </Suspense>

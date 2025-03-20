@@ -82,6 +82,15 @@ export const userAPI = createApi({
                     : [{ type: 'Users', id: 'LIST' }],
             transformResponse: (response: { users: IUser[] }) => response.users,
         }),
+
+        getContactUsers: builder.query<IUser[], { status?: string; role?: string }>({
+            query: (params) => ({
+                url: '/users/contacts',
+                params,
+                credentials: 'include',
+            }),
+            transformResponse: (response: any) => response,
+        }),
         
         getProfile: builder.query<any, any>({
             query() {
@@ -140,4 +149,5 @@ export const {
     useGetProfileQuery,
     useUploadProfileImgMutation,
     useSuspendUserMutation,
+    useGetContactUsersQuery,
 } = userAPI;

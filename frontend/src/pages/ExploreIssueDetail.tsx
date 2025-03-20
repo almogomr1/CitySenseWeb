@@ -37,12 +37,12 @@ const ExploreIssueDetail: React.FC = () => {
                             <p><strong>Priority:</strong> {issue.priority}</p>
                             <p><strong>Category:</strong> {issue?.category}</p>
                             <p><strong>Status:</strong> {issue.status}</p>
-                            {issue.transcription && (
+                            {/* {issue.transcription && (
                                 <div>
                                     <p><strong>Audio Transcription:</strong></p>
                                     <p>{issue.transcription}</p>
                                 </div>
-                            )}
+                            )} */}
                         </Col>
                         <Col md={6} className="text-center">
                             {issue.photoUrl && (

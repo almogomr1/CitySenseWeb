@@ -135,12 +135,12 @@ const AuthorityIssueDetails: React.FC = () => {
                                     <img src={issue.photoUrl} alt="Issue" className="img-fluid rounded mb-3" />
                                 </div>
                             )}
-                            {issue.audioTranscription && (
+                            {/* {issue.audioTranscription && (
                                 <div>
                                     <p><strong>Audio Transcription:</strong></p>
                                     <p>{issue.audioTranscription}</p>
                                 </div>
-                            )}
+                            )} */}
                         </Col>
                     </Row>
                     <Row className="mb-4">

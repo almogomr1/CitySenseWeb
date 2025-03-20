@@ -61,6 +61,7 @@ router.post('/postComment', verifyToken(['Citizen', 'Admin', 'Authority']), asyn
             content: req.body.content,
             createdBy: req.user._id,
             issue: req.body.issueId,
+            status: "Pending"
         })
 
         const notification = new Notification({
